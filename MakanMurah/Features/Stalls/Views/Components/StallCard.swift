@@ -68,7 +68,7 @@ struct StallCard: View {
                     
                     Spacer()
                     
-                    Text("$\(stall.averagePrice, specifier: "%.2f")")
+                    Text("Rp\(stall.averagePrice, specifier: "%.0f")")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundStyle(.green)

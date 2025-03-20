@@ -18,7 +18,7 @@ struct PriceTag: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             
-            Text("$\(price, specifier: "%.2f")")
+            Text("Rp\(price, specifier: "%.0f")")
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(color)
