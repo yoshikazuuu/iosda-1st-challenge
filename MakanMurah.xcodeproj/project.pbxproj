@@ -10,33 +10,9 @@
 		927C01E12D8AC70200BD5638 /* MakanMurah.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MakanMurah.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		927C02332D8B3AB400BD5638 /* Exceptions for "MakanMurah" folder in "MakanMurah" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Models/GOPArea.swift,
-			);
-			target = 927C01E02D8AC70200BD5638 /* MakanMurah */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		927C02342D8B3AB400BD5638 /* Exceptions for "MakanMurah" folder in "Copy Bundle Resources" phase from "MakanMurah" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 927C01DF2D8AC70200BD5638 /* Resources */;
-			membershipExceptions = (
-				Models/GOPArea.swift,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		927C01E32D8AC70200BD5638 /* MakanMurah */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				927C02332D8B3AB400BD5638 /* Exceptions for "MakanMurah" folder in "MakanMurah" target */,
-				927C02342D8B3AB400BD5638 /* Exceptions for "MakanMurah" folder in "Copy Bundle Resources" phase from "MakanMurah" target */,
-			);
 			path = MakanMurah;
 			sourceTree = "<group>";
 		};
