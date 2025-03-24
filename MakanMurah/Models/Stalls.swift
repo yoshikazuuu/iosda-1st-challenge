@@ -46,3 +46,15 @@ final class Stalls {
         self.image = image
     }
 }
+
+extension Stalls {
+    var latitude: Double? {
+        get { area?.latitude }
+        set { area?.latitude = newValue ?? 0 }
+    }
+    
+    var longitude: Double? {
+        get { area?.longitude }
+        set { area?.longitude = newValue ?? 0 }
+    }
+}

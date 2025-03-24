@@ -37,7 +37,6 @@ struct QuestsTabView: View {
                 // Quests list grouped by type
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        let questTypes = QuestType.allCases
                         if selectedTab == 0 {
                             // All quests tab
                             ForEach(quests) { quest in
@@ -53,8 +52,17 @@ struct QuestsTabView: View {
                                 )
                                 .padding(.horizontal)
                             }
+                            
+                            if quests.isEmpty {
+                                EmptyStateView(message: "No quests available yet")
+                                    .padding(.top, 40)
+                            }
                         } else {
-                            let filteredQuests = groupedQuests[questTypes[selectedTab]] ?? []
+                            // Get the selected quest type (adjusted index)
+                            let questTypeIndex = selectedTab - 1
+                            let selectedQuestType = QuestType.allCases[questTypeIndex]
+                            let filteredQuests = groupedQuests[selectedQuestType] ?? []
+                            
                             ForEach(filteredQuests) { quest in
                                 QuestCardView(
                                     quest: quest,
@@ -70,7 +78,8 @@ struct QuestsTabView: View {
                             }
                             
                             if filteredQuests.isEmpty {
-                                EmptyQuestView(questType: questTypes[selectedTab])
+                                EmptyQuestView(questType: selectedQuestType)
+                                    .padding(.top, 40)
                             }
                         }
                     }
@@ -151,22 +160,32 @@ struct QuestsTabView: View {
     
     private func addTestProgress() {
         // For testing - simulate progress in various categories
-        switch QuestType.allCases[selectedTab] {
-        case .exploration:
-            if progress.stallsVisited.count < 10 {
-                progress.stallsVisited.append(UUID())
-            }
-        case .foodTasting:
-            if progress.dishesEaten.count < 20 {
-                progress.dishesEaten.append(UUID())
-            }
-        case .budgetMaster:
-            progress.budgetMealsFound += 1
-        case .foodCritic:
-            progress.reviewsSubmitted += 1
-        case .areaSpecialist:
-            if progress.areasExplored.count < 5 {
-                progress.areasExplored.append(UUID())
+        if selectedTab == 0 {
+            // Add some general progress if "All Quests" is selected
+            progress.stallsVisited.append(UUID())
+            progress.dishesEaten.append(UUID())
+        } else {
+            // Get the selected quest type with adjusted index
+            let questTypeIndex = selectedTab - 1
+            let selectedQuestType = QuestType.allCases[questTypeIndex]
+            
+            switch selectedQuestType {
+            case .exploration:
+                if progress.stallsVisited.count < 10 {
+                    progress.stallsVisited.append(UUID())
+                }
+            case .foodTasting:
+                if progress.dishesEaten.count < 20 {
+                    progress.dishesEaten.append(UUID())
+                }
+            case .budgetMaster:
+                progress.budgetMealsFound += 1
+            case .foodCritic:
+                progress.reviewsSubmitted += 1
+            case .areaSpecialist:
+                if progress.areasExplored.count < 5 {
+                    progress.areasExplored.append(UUID())
+                }
             }
         }
         
@@ -192,6 +211,25 @@ struct QuestsTabView: View {
         }
         
         try? modelContext.save()
+    }
+}
+
+struct EmptyStateView: View {
+    let message: String
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "questionmark.circle")
+                .font(.system(size: 50))
+                .foregroundColor(.gray)
+            
+            Text(message)
+                .font(.headline)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
     }
 }
 

@@ -62,7 +62,7 @@ struct MenuItemRow: View {
             Spacer()
             
             // Price
-            Text("$\(item.price, specifier: "%.2f")")
+            Text("Rp\(item.price, specifier: "%.0f")")
                 .font(.headline)
                 .foregroundStyle(.primary)
         }

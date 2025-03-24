@@ -125,8 +125,6 @@ struct StallsTabView: View {
                         }
                         
                         if !filteredStalls.isEmpty {
-                            Divider()
-                            
                             NavigationLink(destination: StallsManagementView(stalls: stalls)) {
                                 Label("Manage Stalls", systemImage: "list.bullet.rectangle")
                             }

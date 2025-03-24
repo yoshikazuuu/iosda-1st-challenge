@@ -180,6 +180,7 @@ struct StallEditView: View {
             }
             
             // Menu Items Section
+            // Menu Items Section
             Section(
                 header: HStack {
                     Text("Menu Items")
@@ -201,35 +202,32 @@ struct StallEditView: View {
                     }
                 } else {
                     ForEach(stall.menu) { menuItem in
-                        NavigationLink(destination: MenuDetailView(menu: menuItem)) {
-                            HStack {
-                                if let imageData = menuItem.image,
-                                   let uiImage = UIImage(data: imageData)
-                                {
-                                    Image(uiImage: uiImage)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 50, height: 50)
-                                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                                } else {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .fill(Color.gray.opacity(0.3))
-                                        .frame(width: 50, height: 50)
-                                        .overlay(
-                                            Image(systemName: "fork.knife")
-                                                .foregroundColor(.gray)
-                                        )
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(menuItem.name)
-                                        .font(.headline)
-                                    Text("\(menuItem.price, format: .currency(code: "IDR"))")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                }
-                                .padding(.leading, 8)
+                        HStack {
+                            if let imageData = menuItem.image,
+                               let uiImage = UIImage(data: imageData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                            } else {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(width: 50, height: 50)
+                                    .overlay(
+                                        Image(systemName: "fork.knife")
+                                            .foregroundColor(.gray)
+                                    )
                             }
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(menuItem.name)
+                                    .font(.headline)
+                                Text("\(menuItem.price, format: .currency(code: "IDR"))")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(.leading, 8)
                         }
                         .contextMenu {
                             Button {
@@ -289,15 +287,15 @@ struct StallEditView: View {
                 .disabled(!hasChanges && menuToEdit == nil)
             }
             
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Cancel") {
-                    if hasChanges {
-                        showingDiscardAlert = true
-                    } else {
-                        dismiss()
-                    }
-                }
-            }
+//            ToolbarItem(placement: .navigationBarLeading) {
+//                Button("Cancel") {
+//                    if hasChanges {
+//                        showingDiscardAlert = true
+//                    } else {
+//                        dismiss()
+//                    }
+//                }
+//            }
         }
         .sheet(isPresented: $isShowingImagePicker) {
             ImagePicker(image: $selectedImage)
