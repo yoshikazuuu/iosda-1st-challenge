@@ -43,12 +43,15 @@ struct StallDetailView: View {
                 if let imageData = stall.image, let uiImage = UIImage(data: imageData) {
                     Image(uiImage: uiImage)
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(4/3, contentMode: .fill)
+                        .frame(maxWidth: .infinity)
                         .frame(height: 250)
                         .clipped()
                 } else {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
+                        .aspectRatio(4/3, contentMode: .fill)
+                        .frame(maxWidth: .infinity)
                         .frame(height: 250)
                         .overlay {
                             Image(systemName: "photo")
@@ -56,6 +59,7 @@ struct StallDetailView: View {
                                 .foregroundStyle(.gray)
                         }
                 }
+
                 
                 VStack(alignment: .leading, spacing: 16) {
                     // Stall info section
@@ -341,10 +345,34 @@ struct StallDetailView: View {
     }
     
     private func checkAndUpdateQuestProgress() {
-        // Update quest progress
-        // For exploration quests
+        // Update area exploration tracking
         if let area = stall.area, !progress.areasExplored.contains(area.id) {
             progress.areasExplored.append(area.id)
+        }
+        
+        // Add all menu items to dishes eaten (for food tasting quest)
+        for menuItem in stall.menu {
+            if !progress.dishesEaten.contains(menuItem.id) {
+                progress.dishesEaten.append(menuItem.id)
+            }
+        }
+        
+        // Check for budget-friendly items (under 10,000 IDR)
+        let budgetThreshold = 10000.0
+        let budgetItems = stall.menu.filter { $0.price < budgetThreshold }
+        
+        if !budgetItems.isEmpty {
+            // Add to budget meals count if we found budget items
+            progress.budgetMealsFound += budgetItems.count
+            
+            // Track this stall as having budget meals if not already tracked
+            if progress.budgetStallsFound == nil {
+                progress.budgetStallsFound = []
+            }
+            
+            if !progress.budgetStallsFound!.contains(stall.id) {
+                progress.budgetStallsFound!.append(stall.id)
+            }
         }
         
         try? modelContext.save()

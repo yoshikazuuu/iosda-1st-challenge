@@ -143,7 +143,7 @@ struct QuestCardView: View {
         case .exploration: return .blue
         case .foodTasting: return .orange
         case .budgetMaster: return .green
-        case .foodCritic: return .purple
+        case .favoriteCollector: return .purple
         case .areaSpecialist: return .indigo
         }
     }

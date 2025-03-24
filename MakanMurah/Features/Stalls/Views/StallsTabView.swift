@@ -1,12 +1,6 @@
-//
-//  StallsTabView.swift
-//  MakanMurah
-//
-//  Created by Jerry Febriano on 20/03/25.
-//
-
 import SwiftUI
 import SwiftData
+import CoreLocation
 
 struct StallsTabView: View {
     @Environment(\.modelContext) private var modelContext
@@ -17,6 +11,13 @@ struct StallsTabView: View {
     @State private var selectedPriceRange: PriceRange?
     @State private var selectedArea: String?
     @State private var selectedFoodType: MenuType?
+    @State private var showFavoritesOnly = false
+    
+    // Sort states - using separate booleans to allow multiple selections
+    @State private var sortByNearest = false
+    @State private var sortByCheapest = false
+    
+    @StateObject private var locationManager = LocationManager()
     
     // Modal states
     @State private var showMainFilterModal = false
@@ -25,7 +26,7 @@ struct StallsTabView: View {
     @State private var showCuisineFilterModal = false
     
     private var filteredStalls: [Stalls] {
-        stalls.filter { stall in
+        var result = stalls.filter { stall in
             // Area filter
             let areaMatches = selectedArea == nil || stall.area?.name == selectedArea
             
@@ -45,8 +46,80 @@ struct StallsTabView: View {
                 foodTypeMatches = true
             }
             
-            return areaMatches && priceMatches && foodTypeMatches
+            // Favorites filter
+            let favoriteMatches = !showFavoritesOnly || stall.isFavorite
+            
+            return areaMatches && priceMatches && foodTypeMatches && favoriteMatches
         }
+        
+        // Apply sorting - can apply multiple sorts
+        if sortByNearest && sortByCheapest {
+            // When both are selected, sort by distance first, then by price
+            if let userLocation = locationManager.currentLocation {
+                // First create a dictionary of stalls with their distances for efficiency
+                var stallDistances: [UUID: Double] = [:]
+                
+                for stall in result {
+                    if let distance = calculateDistance(from: userLocation, to: stall) {
+                        stallDistances[stall.id] = distance
+                    }
+                }
+                
+                // Sort by both criteria - nearest with price as secondary sort
+                result.sort { stallA, stallB in
+                    let distanceA = stallDistances[stallA.id]
+                    let distanceB = stallDistances[stallB.id]
+                    
+                    // If both distances are available, compare them
+                    if let distanceA = distanceA, let distanceB = distanceB {
+                        if abs(distanceA - distanceB) < 100 { // If within 100m of each other (similar distance)
+                            // Use price as tiebreaker
+                            return stallA.averagePrice < stallB.averagePrice
+                        }
+                        return distanceA < distanceB
+                    }
+                    
+                    // Handle cases where distance isn't available
+                    if distanceA != nil { return true }
+                    if distanceB != nil { return false }
+                    
+                    // If neither has distance, fall back to price
+                    return stallA.averagePrice < stallB.averagePrice
+                }
+            } else {
+                // Fall back to price sorting if location isn't available
+                result.sort { $0.averagePrice < $1.averagePrice }
+            }
+        } else if sortByNearest {
+            // Sort by distance only
+            if let userLocation = locationManager.currentLocation {
+                result.sort { stallA, stallB in
+                    let distanceA = calculateDistance(from: userLocation, to: stallA)
+                    let distanceB = calculateDistance(from: userLocation, to: stallB)
+                    
+                    if distanceA == nil { return false }
+                    if distanceB == nil { return true }
+                    
+                    return distanceA! < distanceB!
+                }
+            }
+        } else if sortByCheapest {
+            // Sort by price only
+            result.sort { $0.averagePrice < $1.averagePrice }
+        }
+        
+        return result
+    }
+    
+    private func calculateDistance(from userLocation: CLLocation, to stall: Stalls) -> Double? {
+        guard let stallArea = stall.area,
+              let latitude = stallArea.latitude,
+              let longitude = stallArea.longitude else {
+            return nil
+        }
+        
+        let stallLocation = CLLocation(latitude: latitude, longitude: longitude)
+        return userLocation.distance(from: stallLocation)
     }
     
     var body: some View {
@@ -70,6 +143,33 @@ struct StallsTabView: View {
                             .clipShape(Capsule())
                         }
                         
+                        // Sort by cheapest toggle pill
+                        FilterPillButton(
+                            title: "Cheapest",
+                            isActive: sortByCheapest
+                        ) {
+                            sortByCheapest.toggle()
+                        }
+                        
+                        // Sort by nearest toggle pill
+                        FilterPillButton(
+                            title: "Nearest",
+                            isActive: sortByNearest
+                        ) {
+                            sortByNearest.toggle()
+                            if sortByNearest {
+                                locationManager.startUpdatingLocation()
+                            }
+                        }
+                        
+                        // Cuisine filter pill
+                        FilterPillButton(
+                            title: selectedFoodType == nil ? "Cuisine" : "Cuisine: \(selectedFoodType!.rawValue)",
+                            isActive: selectedFoodType != nil
+                        ) {
+                            showCuisineFilterModal = true
+                        }
+                        
                         // Price filter pill
                         FilterPillButton(
                             title: selectedPriceRange == nil ? "Price" : "Price: \(selectedPriceRange!.displayName)",
@@ -86,12 +186,12 @@ struct StallsTabView: View {
                             showLocationFilterModal = true
                         }
                         
-                        // Cuisine filter pill
+                        // Favorites filter toggle pill
                         FilterPillButton(
-                            title: selectedFoodType == nil ? "Cuisine" : "Cuisine: \(selectedFoodType!.rawValue)",
-                            isActive: selectedFoodType != nil
+                            title: "Favorites",
+                            isActive: showFavoritesOnly
                         ) {
-                            showCuisineFilterModal = true
+                            showFavoritesOnly.toggle()
                         }
                     }
                     .padding(.horizontal, 16)
@@ -134,14 +234,16 @@ struct StallsTabView: View {
                     }
                 }
             }
-
             
             // Main filter modal
             .sheet(isPresented: $showMainFilterModal) {
                 MainFilterView(
                     selectedPriceRange: $selectedPriceRange,
                     selectedArea: $selectedArea,
-                    selectedFoodType: $selectedFoodType
+                    selectedFoodType: $selectedFoodType,
+                    showFavoritesOnly: $showFavoritesOnly,
+                    sortByNearest: $sortByNearest,
+                    sortByCheapest: $sortByCheapest
                 )
             }
             
@@ -159,13 +261,11 @@ struct StallsTabView: View {
                     .presentationDetents([.medium])
             }
         }
+        .onAppear {
+            // Request location permissions when view appears (for nearest sort)
+            if sortByNearest {
+                locationManager.startUpdatingLocation()
+            }
+        }
     }
-    
-    func placeOrder() { }
-    func adjustOrder() { }
-    func cancelOrder() { }
-}
-
-#Preview {
-    StallsTabView()
 }

@@ -90,8 +90,12 @@ struct QuestsTabView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
-                        Button("Add Test Progress", action: addTestProgress)
-                        Button("Reset Progress", action: resetProgress)
+                        Button(action: addTestProgress) {
+                            Label("Add Test Progress", systemImage: "plus")
+                        }
+                        Button(action: resetProgress) {
+                            Label("Reset Progress", systemImage: "arrow.counterclockwise")
+                        }
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
@@ -162,8 +166,8 @@ struct QuestsTabView: View {
         // For testing - simulate progress in various categories
         if selectedTab == 0 {
             // Add some general progress if "All Quests" is selected
-            progress.stallsVisited.append(UUID())
-            progress.dishesEaten.append(UUID())
+            addVisitedStall()
+            checkAndAddBudgetMeal()
         } else {
             // Get the selected quest type with adjusted index
             let questTypeIndex = selectedTab - 1
@@ -171,17 +175,13 @@ struct QuestsTabView: View {
             
             switch selectedQuestType {
             case .exploration:
-                if progress.stallsVisited.count < 10 {
-                    progress.stallsVisited.append(UUID())
-                }
+                addVisitedStall()
             case .foodTasting:
-                if progress.dishesEaten.count < 20 {
-                    progress.dishesEaten.append(UUID())
-                }
+                addVisitedStall() // This will automatically add dishes eaten
             case .budgetMaster:
-                progress.budgetMealsFound += 1
-            case .foodCritic:
-                progress.reviewsSubmitted += 1
+                checkAndAddBudgetMeal()
+            case .favoriteCollector:
+                addFavoriteStall()
             case .areaSpecialist:
                 if progress.areasExplored.count < 5 {
                     progress.areasExplored.append(UUID())
@@ -192,6 +192,127 @@ struct QuestsTabView: View {
         checkAndUpdateMilestones()
     }
     
+    // Helper function to mark a stall as visited and its food as eaten
+    private func addVisitedStall() {
+        // Fetch available stalls
+        let stallDescriptor = FetchDescriptor<Stalls>()
+        
+        do {
+            let availableStalls = try modelContext.fetch(stallDescriptor)
+            if !availableStalls.isEmpty {
+                // Find a stall that hasn't been visited yet
+                let alreadyVisitedStalls = Set(progress.stallsVisited)
+                let newStalls = availableStalls.filter { !alreadyVisitedStalls.contains($0.id) }
+                
+                if let stallToVisit = newStalls.first {
+                    // Add this stall to our visited stalls
+                    progress.stallsVisited.append(stallToVisit.id)
+                    
+                    // Add all menu items from this stall to dishesEaten
+                    for menuItem in stallToVisit.menu {
+                        if !progress.dishesEaten.contains(menuItem.id) {
+                            progress.dishesEaten.append(menuItem.id)
+                        }
+                    }
+                    
+                    // If the stall is budget-friendly, add it to budget meals
+                    if stallToVisit.minimumPrice < 10000.0 {
+                        progress.budgetMealsFound += 1
+                        if progress.budgetStallsFound == nil {
+                            progress.budgetStallsFound = []
+                        }
+                        progress.budgetStallsFound?.append(stallToVisit.id)
+                    }
+                    
+                    // Update the area exploration if needed
+                    if let area = stallToVisit.area, !progress.areasExplored.contains(area.id) {
+                        progress.areasExplored.append(area.id)
+                    }
+                    
+                } else if !availableStalls.isEmpty {
+                    // If all stalls are visited, pick a random one for testing
+                    let randomStall = availableStalls.randomElement()!
+                    progress.stallsVisited.append(randomStall.id)
+                }
+            } else {
+                // Fallback for testing if no stalls exist
+                progress.stallsVisited.append(UUID())
+            }
+        } catch {
+            print("Error fetching stalls: \(error)")
+            // Fallback for testing
+            progress.stallsVisited.append(UUID())
+        }
+    }
+    
+    // Helper function for adding favorite stalls
+    private func addFavoriteStall() {
+        // Fetch available stalls
+        let stallDescriptor = FetchDescriptor<Stalls>(
+            predicate: #Predicate<Stalls> { stall in
+                !stall.isFavorite
+            }
+        )
+        
+        do {
+            let availableStalls = try modelContext.fetch(stallDescriptor)
+            if !availableStalls.isEmpty {
+                // Find a stall to favorite
+                if let stallToFavorite = availableStalls.first {
+                    stallToFavorite.isFavorite = true
+                    progress.favoritesCount += 1
+                }
+            } else {
+                // For testing, just increment the count
+                progress.favoritesCount += 1
+            }
+        } catch {
+            print("Error fetching stalls for favorites: \(error)")
+            // Fallback for testing
+            progress.favoritesCount += 1
+        }
+    }
+    
+    // Helper function to find and add a budget meal
+    private func checkAndAddBudgetMeal() {
+        let budgetThreshold = 10000.0
+        
+        // Fetch stalls with minimum price under threshold
+        let descriptor = FetchDescriptor<Stalls>(
+            predicate: #Predicate<Stalls> { stall in
+                stall.minimumPrice < budgetThreshold
+            }
+        )
+        
+        do {
+            let affordableStalls = try modelContext.fetch(descriptor)
+            if !affordableStalls.isEmpty {
+                // Find a stall that hasn't been counted yet
+                let alreadyCountedStalls = Set(progress.budgetStallsFound ?? [])
+                let newAffordableStalls = affordableStalls.filter { !alreadyCountedStalls.contains($0.id) }
+                
+                if let stallToAdd = newAffordableStalls.first {
+                    // Add this stall to our tracked budget stalls
+                    if progress.budgetStallsFound == nil {
+                        progress.budgetStallsFound = []
+                    }
+                    progress.budgetStallsFound?.append(stallToAdd.id)
+                    progress.budgetMealsFound += 1
+                } else {
+                    // For demo purposes, increment anyway if all affordable stalls already counted
+                    progress.budgetMealsFound += 1
+                }
+            } else {
+                // Fallback for testing if no affordable stalls exist
+                progress.budgetMealsFound += 1
+            }
+        } catch {
+            print("Error fetching affordable stalls: \(error)")
+            // Fallback increment for testing
+            progress.budgetMealsFound += 1
+        }
+    }
+    
     private func resetProgress() {
         progress.totalPoints = 0
         progress.currentRank = .newbie
@@ -199,6 +320,7 @@ struct QuestsTabView: View {
         progress.areasExplored = []
         progress.dishesEaten = []
         progress.budgetMealsFound = 0
+        progress.budgetStallsFound = []
         progress.favoritesCount = 0
         progress.reviewsSubmitted = 0
         progress.completedQuests = []
@@ -214,9 +336,7 @@ struct QuestsTabView: View {
     }
 }
 
-struct EmptyStateView: View {
-    let message: String
-    
+struct EmptyStateView: View { let message: String
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: "questionmark.circle")
@@ -233,10 +353,3 @@ struct EmptyStateView: View {
     }
 }
 
-// Extension to add a preview provider
-struct QuestsTabView_Previews: PreviewProvider {
-    static var previews: some View {
-        QuestsTabView()
-            .modelContainer(for: [Quest.self, Milestone.self, UserProgress.self], inMemory: true)
-    }
-}

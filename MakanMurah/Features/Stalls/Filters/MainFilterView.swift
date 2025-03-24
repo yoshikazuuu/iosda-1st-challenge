@@ -1,10 +1,3 @@
-//
-//  MainFilterView.swift
-//  MakanMurah
-//
-//  Created by Jerry Febriano on 20/03/25.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -13,12 +6,26 @@ struct MainFilterView: View {
     @Binding var selectedPriceRange: PriceRange?
     @Binding var selectedArea: String?
     @Binding var selectedFoodType: MenuType?
+    @Binding var showFavoritesOnly: Bool
+    @Binding var sortByNearest: Bool
+    @Binding var sortByCheapest: Bool
     
     @Query private var areas: [GOPArea]
     
     var body: some View {
         NavigationStack {
             Form {
+                // Favorites filter
+                Section("Show Only") {
+                    Toggle("Favorites", isOn: $showFavoritesOnly)
+                }
+                
+                // Sort options
+                Section("Sort By") {
+                    Toggle("Nearest", isOn: $sortByNearest)
+                    Toggle("Cheapest", isOn: $sortByCheapest)
+                }
+                
                 // Price range section
                 Section("Price Range") {
                     ForEach(PriceRange.allCases) { range in
@@ -117,6 +124,9 @@ struct MainFilterView: View {
                         selectedPriceRange = nil
                         selectedArea = nil
                         selectedFoodType = nil
+                        showFavoritesOnly = false
+                        sortByNearest = false
+                        sortByCheapest = false
                     }
                     .foregroundStyle(.red)
                     .frame(maxWidth: .infinity, alignment: .center)

@@ -260,22 +260,22 @@ struct MakanMurahApp: App {
         
         tasteTesterQuest.milestones = tasteMilestones
         
-        // Food Critic Quest
-        let foodCriticQuest = Quest(
-            title: "Food Critic",
-            desc: "Rate and review dishes you've tried",
-            type: .foodCritic,
+        // Favorite Collector Quest
+        let favoriteCollectorQuest = Quest(
+            title: "Favorite Collector",
+            desc: "Add stalls to your favorites collection",
+            type: .favoriteCollector,
             requiredCount: 10,
             reward: 150
         )
         
-        let criticMilestones = [
-            Milestone(title: "Amateur Critic", threshold: 2, reward: 20, quest: foodCriticQuest),
-            Milestone(title: "Thoughtful Reviewer", threshold: 5, reward: 40, quest: foodCriticQuest),
-            Milestone(title: "Trusted Critic", threshold: 8, reward: 60, quest: foodCriticQuest)
+        let favoritesMilestones = [
+            Milestone(title: "First Favorite", threshold: 1, reward: 15, quest: favoriteCollectorQuest),
+            Milestone(title: "Growing Collection", threshold: 5, reward: 40, quest: favoriteCollectorQuest),
+            Milestone(title: "Favorite Connoisseur", threshold: 8, reward: 60, quest: favoriteCollectorQuest)
         ]
         
-        foodCriticQuest.milestones = criticMilestones
+        favoriteCollectorQuest.milestones = favoritesMilestones
         
         // Create default user progress
         let userProgress = UserProgress()
@@ -285,10 +285,10 @@ struct MakanMurahApp: App {
         context.insert(budgetFoodieQuest)
         context.insert(areaSpecialistQuest)
         context.insert(tasteTesterQuest)
-        context.insert(foodCriticQuest)
+        context.insert(favoriteCollectorQuest)
         context.insert(userProgress)
         
-        for milestone in explorerMilestones + budgetMilestones + areaMilestones + tasteMilestones + criticMilestones {
+        for milestone in explorerMilestones + budgetMilestones + areaMilestones + tasteMilestones + favoritesMilestones {
             context.insert(milestone)
         }
         

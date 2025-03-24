@@ -12,7 +12,7 @@ enum QuestType: String, Codable, CaseIterable {
     case exploration = "Exploration"
     case foodTasting = "Food Tasting"
     case budgetMaster = "Budget Master"
-    case foodCritic = "Food Critic"
+    case favoriteCollector = "Favorite Collector"
     case areaSpecialist = "Area Specialist"
 }
 
@@ -90,7 +90,8 @@ final class UserProgress {
     var stallsVisited: [UUID] = [] // Stall IDs
     var areasExplored: [UUID] = [] // GOPArea IDs
     var dishesEaten: [UUID] = [] // Menu IDs
-    var budgetMealsFound: Int = 0 // Meals below certain price point
+    var budgetMealsFound: Int = 0
+    var budgetStallsFound: [UUID]? = [] // Track budget stalls by ID
     var favoritesCount: Int = 0
     var reviewsSubmitted: Int = 0
     
@@ -104,6 +105,7 @@ final class UserProgress {
         areasExplored: [UUID] = [],
         dishesEaten: [UUID] = [],
         budgetMealsFound: Int = 0,
+        budgetStallsFound: [UUID]? = [],
         favoritesCount: Int = 0,
         reviewsSubmitted: Int = 0,
         completedQuests: [UUID] = []
@@ -115,6 +117,7 @@ final class UserProgress {
         self.areasExplored = areasExplored
         self.dishesEaten = dishesEaten
         self.budgetMealsFound = budgetMealsFound
+        self.budgetStallsFound = budgetStallsFound
         self.favoritesCount = favoritesCount
         self.reviewsSubmitted = reviewsSubmitted
         self.completedQuests = completedQuests
@@ -128,8 +131,8 @@ final class UserProgress {
             return dishesEaten.count
         case .budgetMaster:
             return budgetMealsFound
-        case .foodCritic:
-            return reviewsSubmitted
+        case .favoriteCollector:
+            return favoritesCount
         case .areaSpecialist:
             return areasExplored.count
         }
@@ -214,6 +217,18 @@ extension Quest {
                 Milestone(title: "Curious Taster", threshold: 5, reward: 20),
                 Milestone(title: "Adventurous Eater", threshold: 10, reward: 50),
                 Milestone(title: "Food Enthusiast", threshold: 15, reward: 80)
+            ]
+        ),
+        Quest(
+            title: "Favorite Collector",
+            desc: "Add stalls to your favorites collection",
+            type: .favoriteCollector,
+            requiredCount: 10,
+            reward: 150,
+            milestones: [
+                Milestone(title: "First Favorite", threshold: 1, reward: 15),
+                Milestone(title: "Growing Collection", threshold: 5, reward: 40),
+                Milestone(title: "Favorite Connoisseur", threshold: 8, reward: 60)
             ]
         )
     ]
