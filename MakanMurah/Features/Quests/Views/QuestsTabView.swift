@@ -79,14 +79,14 @@ struct QuestsTabView: View {
             }
             .navigationTitle("Quests")
             .toolbar {
-                Button("Add Test Progress", action: addTestProgress)
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    Menu {
-//                        Button("Reset Progress", action: resetProgress)
-//                    } label: {
-//                        Image(systemName: "ellipsis.circle")
-//                    }
-//                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        Button("Add Test Progress", action: addTestProgress)
+                        Button("Reset Progress", action: resetProgress)
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                }
             }
             .alert("Quest Completed!", isPresented: $showingCompletionAlert) {
                 Button("OK", role: .cancel) { }

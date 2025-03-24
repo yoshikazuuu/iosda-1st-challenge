@@ -51,7 +51,7 @@ struct StallsTabView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            VStack {
                 // Filter pills row
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -117,21 +117,26 @@ struct StallsTabView: View {
             }
             .navigationBarTitleDisplayMode(.automatic)
             .navigationTitle("Food Stalls")
-//            .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    Menu {
-//                        Button("Place Order", action: placeOrder)
-//                        Button("Adjust Order", action: adjustOrder)
-//                        Button("Cancel Order", action: cancelOrder)
-//                    } label: {
-//                        Image(systemName: "plus")
-//                            .foregroundColor(.white)
-//                            .padding(8)
-//                            .background(Color.blue)
-//                            .clipShape(Circle())
-//                    }
-//                }
-//            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        NavigationLink(destination: StallFormView()) {
+                            Label("Add New Stall", systemImage: "plus")
+                        }
+                        
+                        if !filteredStalls.isEmpty {
+                            Divider()
+                            
+                            NavigationLink(destination: StallsManagementView(stalls: stalls)) {
+                                Label("Manage Stalls", systemImage: "list.bullet.rectangle")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                }
+            }
+
             
             // Main filter modal
             .sheet(isPresented: $showMainFilterModal) {
@@ -161,4 +166,8 @@ struct StallsTabView: View {
     func placeOrder() { }
     func adjustOrder() { }
     func cancelOrder() { }
+}
+
+#Preview {
+    StallsTabView()
 }

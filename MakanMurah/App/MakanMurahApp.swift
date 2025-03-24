@@ -15,7 +15,7 @@ struct MakanMurahApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Stalls.self,
-            Menu.self,
+            FoodMenu.self,
             GOPArea.self,
             Quest.self,
             Milestone.self,
@@ -145,9 +145,9 @@ struct MakanMurahApp: App {
                 image: loadImage(named: imageName) // Load stall image
             )
             
-            var menus: [Menu] = []
+            var menus: [FoodMenu] = []
             for (menuName, price, menuDesc, ingredients, menuType) in menuItems {
-                let menu = Menu(
+                let menu = FoodMenu(
                     name: menuName,
                     price: price,
                     desc: menuDesc,
@@ -310,7 +310,7 @@ struct ContentView_Previews: PreviewProvider {
         // Create an in-memory model container for seeding previews
         let schema = Schema([
             Stalls.self,
-            Menu.self,
+            FoodMenu.self,
             GOPArea.self,
             Quest.self,
             Milestone.self,
@@ -345,5 +345,5 @@ struct ContentView_Previews: PreviewProvider {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Stalls.self, Menu.self], inMemory: true)
+        .modelContainer(for: [Stalls.self, FoodMenu.self], inMemory: true)
 }

@@ -18,7 +18,7 @@ final class Stalls {
     var maximumPrice: Double
     var averagePrice: Double
     @Relationship var area: GOPArea?
-    @Relationship(deleteRule: .cascade) var menu: [Menu] = []
+    @Relationship(deleteRule: .cascade) var menu: [FoodMenu] = []
     var isFavorite: Bool = false
     var image: Data?
 
@@ -29,7 +29,7 @@ final class Stalls {
         maximumPrice: Double,
         averagePrice: Double,
         area: GOPArea? = nil,
-        menu: [Menu] = [],
+        menu: [FoodMenu] = [],
         isFavorite: Bool = false,
         image: Data? = nil,
         id: UUID = UUID()

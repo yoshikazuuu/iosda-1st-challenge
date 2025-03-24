@@ -7,9 +7,10 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 @Model
-final class Menu {
+final class FoodMenu {
     @Attribute(.unique) var id: UUID = UUID()
     var name: String
     var price: Double

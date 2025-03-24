@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MenuItemRow: View {
-    let item: Menu
+    let item: FoodMenu
     
     var body: some View {
         HStack(spacing: 12) {
