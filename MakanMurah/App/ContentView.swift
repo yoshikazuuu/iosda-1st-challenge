@@ -6,12 +6,12 @@ struct ContentView: View {
         TabView {
             StallsTabView()
                 .tabItem {
-                    Label("Stalls", systemImage: "house.fill")
+                    Label("Foods", systemImage: "fork.knife")
                 }
             
             QuestsTabView()
                 .tabItem {
-                    Label("Quests", systemImage: "map.fill")
+                    Label("Quests", systemImage: "pencil.and.list.clipboard")
                 }
         }
     }

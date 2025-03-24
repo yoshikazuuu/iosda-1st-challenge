@@ -71,7 +71,7 @@ struct StallDetailView: View {
                     
                     // Price info
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Price Information")
+                        Text("Price")
                             .font(.headline)
                         
                         HStack(spacing: 16) {

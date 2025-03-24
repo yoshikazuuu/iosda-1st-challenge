@@ -16,6 +16,10 @@ struct MakanMurahApp: App {
         let schema = Schema([
             Stalls.self,
             Menu.self,
+            GOPArea.self,
+            Quest.self,
+            Milestone.self,
+            UserProgress.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         
@@ -53,7 +57,7 @@ struct MakanMurahApp: App {
         
         // Create sample data with prices in IDR
         let stallsData: [(String, String, Double, Double, Double, GOPArea, String, [(String, Double, String, [String], MenuType)])] = [
-                ("Warung Pojok", "Traditional Indonesian food", 8_000, 25_000, 15_000, .gop1, "warung_pojok", [
+            ("Warung Pojok", "Traditional Indonesian food", 8_000, 25_000, 15_000, .gop1, "warung_pojok", [
                 ("Nasi Goreng", 12_000, "Delicious fried rice", ["Rice", "Egg", "Chicken"], .indonesian),
                 ("Sate Ayam", 18_000, "Grilled chicken skewers", ["Chicken", "Peanut Sauce"], .indonesian),
                 ("Rendang", 20_000, "Spicy beef stew", ["Beef", "Coconut Milk", "Spices"], .indonesian)
@@ -140,7 +144,7 @@ struct MakanMurahApp: App {
                 isFavorite: false,
                 image: loadImage(named: imageName) // Load stall image
             )
-
+            
             var menus: [Menu] = []
             for (menuName, price, menuDesc, ingredients, menuType) in menuItems {
                 let menu = Menu(
@@ -154,11 +158,11 @@ struct MakanMurahApp: App {
                 )
                 menus.append(menu)
             }
-
+            
             stall.menu = menus // Establish relationship
             stalls.append(stall)
         }
-
+        
         // Insert all stalls and their menus into the context
         for stall in stalls {
             context.insert(stall)
@@ -166,7 +170,10 @@ struct MakanMurahApp: App {
                 context.insert(menu)
             }
         }
-
+        
+        // Seed Quests data
+        await seedQuestsData(context: context)
+        
         do {
             try context.save()
             print("Data seeded successfully.")
@@ -174,7 +181,120 @@ struct MakanMurahApp: App {
             print("Failed to seed data: \(error)")
         }
     }
-
+    
+    // Add Quest seeding
+    static func seedQuestsData(context: ModelContext) async {
+        // Check if quests already exist
+        let questCount = try? context.fetchCount(FetchDescriptor<Quest>())
+        if (questCount ?? 0) > 0 {
+            print("Quest data already seeded, skipping.")
+            return
+        }
+        
+        // GOP Explorer Quest
+        let gopExplorerQuest = Quest(
+            title: "GOP Explorer",
+            desc: "Visit food stalls in different GOP areas",
+            type: .exploration,
+            requiredCount: 10,
+            reward: 150
+        )
+        
+        let explorerMilestones = [
+            Milestone(title: "First Step", threshold: 1, reward: 10, quest: gopExplorerQuest),
+            Milestone(title: "Getting Started", threshold: 3, reward: 25, quest: gopExplorerQuest),
+            Milestone(title: "Halfway There", threshold: 5, reward: 50, quest: gopExplorerQuest),
+            Milestone(title: "Almost Complete", threshold: 8, reward: 75, quest: gopExplorerQuest)
+        ]
+        
+        gopExplorerQuest.milestones = explorerMilestones
+        
+        // Budget Foodie Quest
+        let budgetFoodieQuest = Quest(
+            title: "Budget Foodie",
+            desc: "Find meals under 10k rupiah",
+            type: .budgetMaster,
+            requiredCount: 15,
+            reward: 200
+        )
+        
+        let budgetMilestones = [
+            Milestone(title: "Bargain Hunter", threshold: 3, reward: 15, quest: budgetFoodieQuest),
+            Milestone(title: "Savings Expert", threshold: 8, reward: 40, quest: budgetFoodieQuest),
+            Milestone(title: "Budget Master", threshold: 12, reward: 60, quest: budgetFoodieQuest)
+        ]
+        
+        budgetFoodieQuest.milestones = budgetMilestones
+        
+        // Area Specialist Quest
+        let areaSpecialistQuest = Quest(
+            title: "Area Specialist: GOP 1",
+            desc: "Visit 5 different stalls in GOP 1",
+            type: .areaSpecialist,
+            requiredCount: 5,
+            reward: 100
+        )
+        
+        let areaMilestones = [
+            Milestone(title: "GOP 1 Beginner", threshold: 1, reward: 15, quest: areaSpecialistQuest),
+            Milestone(title: "GOP 1 Regular", threshold: 3, reward: 35, quest: areaSpecialistQuest),
+            Milestone(title: "GOP 1 Expert", threshold: 5, reward: 50, quest: areaSpecialistQuest)
+        ]
+        
+        areaSpecialistQuest.milestones = areaMilestones
+        
+        // Taste Tester Quest
+        let tasteTesterQuest = Quest(
+            title: "Taste Tester",
+            desc: "Try 20 different dishes across various stalls",
+            type: .foodTasting,
+            requiredCount: 20,
+            reward: 250
+        )
+        
+        let tasteMilestones = [
+            Milestone(title: "Curious Taster", threshold: 5, reward: 20, quest: tasteTesterQuest),
+            Milestone(title: "Adventurous Eater", threshold: 10, reward: 50, quest: tasteTesterQuest),
+            Milestone(title: "Food Enthusiast", threshold: 15, reward: 80, quest: tasteTesterQuest)
+        ]
+        
+        tasteTesterQuest.milestones = tasteMilestones
+        
+        // Food Critic Quest
+        let foodCriticQuest = Quest(
+            title: "Food Critic",
+            desc: "Rate and review dishes you've tried",
+            type: .foodCritic,
+            requiredCount: 10,
+            reward: 150
+        )
+        
+        let criticMilestones = [
+            Milestone(title: "Amateur Critic", threshold: 2, reward: 20, quest: foodCriticQuest),
+            Milestone(title: "Thoughtful Reviewer", threshold: 5, reward: 40, quest: foodCriticQuest),
+            Milestone(title: "Trusted Critic", threshold: 8, reward: 60, quest: foodCriticQuest)
+        ]
+        
+        foodCriticQuest.milestones = criticMilestones
+        
+        // Create default user progress
+        let userProgress = UserProgress()
+        
+        // Insert all quests and milestones into the context
+        context.insert(gopExplorerQuest)
+        context.insert(budgetFoodieQuest)
+        context.insert(areaSpecialistQuest)
+        context.insert(tasteTesterQuest)
+        context.insert(foodCriticQuest)
+        context.insert(userProgress)
+        
+        for milestone in explorerMilestones + budgetMilestones + areaMilestones + tasteMilestones + criticMilestones {
+            context.insert(milestone)
+        }
+        
+        print("Quest data seeded successfully.")
+    }
+    
     // Helper function to load images
     private static func loadImage(named imageName: String) -> Data? {
         guard let image = UIImage(named: imageName) else {
@@ -188,7 +308,14 @@ struct MakanMurahApp: App {
 struct ContentView_Previews: PreviewProvider {
     static var previewContainer: ModelContainer = {
         // Create an in-memory model container for seeding previews
-        let schema = Schema([Stalls.self, Menu.self])
+        let schema = Schema([
+            Stalls.self,
+            Menu.self,
+            GOPArea.self,
+            Quest.self,
+            Milestone.self,
+            UserProgress.self
+        ])
         let modelConfiguration =
         ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container: ModelContainer

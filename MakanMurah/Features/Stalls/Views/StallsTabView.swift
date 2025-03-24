@@ -54,16 +54,16 @@ struct StallsTabView: View {
             VStack(spacing: 0) {
                 // Filter pills row
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
+                    HStack(spacing: 8) {
                         // Main filter button
                         Button {
                             showMainFilterModal = true
                         } label: {
                             HStack(spacing: 6) {
-                                Image(systemName: "line.3.horizontal.decrease.circle")
-                                Text("Filter")
+                                Image(systemName: "line.3.horizontal.decrease")
                             }
-                            .font(.subheadline)
+                            .font(.headline)
+                            .frame(height: 20)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
                             .background(Color(.systemGray6))
@@ -99,8 +99,6 @@ struct StallsTabView: View {
                 }
                 .background(Color(.systemBackground))
                 
-                Divider()
-                
                 // Stalls grid
                 ScrollView {
                     LazyVGrid(columns: [
@@ -117,8 +115,23 @@ struct StallsTabView: View {
                     .padding(16)
                 }
             }
+            .navigationBarTitleDisplayMode(.automatic)
             .navigationTitle("Food Stalls")
-            .navigationBarTitleDisplayMode(.large)
+//            .toolbar {
+//                ToolbarItem(placement: .navigationBarTrailing) {
+//                    Menu {
+//                        Button("Place Order", action: placeOrder)
+//                        Button("Adjust Order", action: adjustOrder)
+//                        Button("Cancel Order", action: cancelOrder)
+//                    } label: {
+//                        Image(systemName: "plus")
+//                            .foregroundColor(.white)
+//                            .padding(8)
+//                            .background(Color.blue)
+//                            .clipShape(Circle())
+//                    }
+//                }
+//            }
             
             // Main filter modal
             .sheet(isPresented: $showMainFilterModal) {
@@ -132,14 +145,20 @@ struct StallsTabView: View {
             // Individual filter modals
             .sheet(isPresented: $showPriceFilterModal) {
                 PriceFilterView(selectedPriceRange: $selectedPriceRange)
+                    .presentationDetents([.medium])
             }
             .sheet(isPresented: $showLocationFilterModal) {
                 LocationFilterView(selectedArea: $selectedArea)
+                    .presentationDetents([.medium])
             }
             .sheet(isPresented: $showCuisineFilterModal) {
                 CuisineFilterView(selectedFoodType: $selectedFoodType)
+                    .presentationDetents([.medium])
             }
         }
     }
+    
+    func placeOrder() { }
+    func adjustOrder() { }
+    func cancelOrder() { }
 }
-

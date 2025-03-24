@@ -16,6 +16,7 @@ struct FilterPillButton: View {
         Button(action: action) {
             Text(title)
                 .font(.subheadline)
+                .frame(height: 20)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(isActive ? Color.blue.opacity(0.1) : Color(.systemGray6))

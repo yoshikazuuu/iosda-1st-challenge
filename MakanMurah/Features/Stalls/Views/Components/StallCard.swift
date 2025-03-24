@@ -45,7 +45,7 @@ struct StallCard: View {
                 
                 if stall.isFavorite {
                     Image(systemName: "heart.fill")
-                        .foregroundStyle(.white, .red)
+                        .foregroundStyle(.red)
                         .padding(8)
                         .shadow(radius: 2)
                 }
