@@ -72,17 +72,6 @@ struct StallDetailView: View {
                                     Text(area.name)
                                         .font(.subheadline)
                                 }
-                                
-                                // Show area coordinates for debugging
-                                if let latitude = area.latitude, let longitude = area.longitude {
-                                    Text("(\(latitude), \(longitude))")
-                                        .font(.caption2)
-                                        .foregroundColor(.gray)
-                                } else {
-                                    Text("(No coordinates)")
-                                        .font(.caption2)
-                                        .foregroundColor(.gray)
-                                }
                             }
                             
                             // Distance indicator
@@ -144,9 +133,6 @@ struct StallDetailView: View {
                         }
                     }
                     
-                    // Rest of the view...
-                    // (keeping the same as before)
-                    
                     // Price info
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Price")
@@ -154,11 +140,14 @@ struct StallDetailView: View {
                         
                         HStack(spacing: 16) {
                             PriceTag(label: "Min", price: stall.minimumPrice, color: .green)
+                                .frame(maxWidth: .infinity)
                             PriceTag(label: "Avg", price: stall.averagePrice, color: .blue)
+                                .frame(maxWidth: .infinity)
                             PriceTag(label: "Max", price: stall.maximumPrice, color: .orange)
+                                .frame(maxWidth: .infinity)
                         }
                     }
-                    
+
                     Divider()
                     
                     // Mark as visited button
