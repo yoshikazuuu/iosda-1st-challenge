@@ -17,21 +17,21 @@ final class FoodMenu {
     var desc: String
     var image: Data?
     var type: [String]
-    var ingredients: [String]
+    var dietType: String
     var menuType: MenuType
-
+    
     @Relationship var stalls: Stalls?
-
+    
     init(
+        id: UUID = UUID(),
         name: String,
         price: Double,
         desc: String,
         image: Data? = nil,
         type: [String],
-        ingredients: [String],
+        dietType: String,
         menuType: MenuType,
-        stalls: Stalls? = nil,
-        id: UUID = UUID()
+        stalls: Stalls? = nil
     ) {
         self.id = id
         self.name = name
@@ -39,7 +39,7 @@ final class FoodMenu {
         self.desc = desc
         self.image = image
         self.type = type
-        self.ingredients = ingredients
+        self.dietType = dietType
         self.menuType = menuType
         self.stalls = stalls
     }

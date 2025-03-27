@@ -19,7 +19,7 @@ struct MenuFormView: View {
     @State private var description: String = ""
     @State private var menuType: MenuType = .indonesian
     @State private var types: [String] = []
-    @State private var ingredients: [String] = []
+    @State private var dietType: String = ""
     @State private var isShowingImagePicker = false
     @State private var selectedImage: UIImage?
     
@@ -36,7 +36,7 @@ struct MenuFormView: View {
             _description = State(initialValue: menu.desc)
             _menuType = State(initialValue: menu.menuType)
             _types = State(initialValue: menu.type)
-            _ingredients = State(initialValue: menu.ingredients)
+            _dietType = State(initialValue: menu.dietType)
             
             if let imageData = menu.image {
                 _selectedImage = State(initialValue: UIImage(data: imageData))
@@ -130,36 +130,36 @@ struct MenuFormView: View {
                     }
                 }
                 
-                // Ingredients
-                Section(header: Text("Ingredients")) {
-                    ForEach(ingredients, id: \.self) { ingredient in
-                        HStack {
-                            Text(ingredient)
-                            Spacer()
-                            Button {
-                                ingredients.removeAll { $0 == ingredient }
-                            } label: {
-                                Image(systemName: "minus.circle.fill")
-                                    .foregroundColor(.red)
-                            }
-                        }
-                    }
-                    
-                    HStack {
-                        TextField("Add ingredient", text: $newIngredient)
-                        Button {
-                            if !newIngredient.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-                               !ingredients.contains(newIngredient) {
-                                ingredients.append(newIngredient)
-                                newIngredient = ""
-                            }
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .foregroundColor(.green)
-                        }
-                        .disabled(newIngredient.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    }
-                }
+//                // Ingredients
+//                Section(header: Text("Ingredients")) {
+//                    ForEach(dietType, id: \.self) { ingredient in
+//                        HStack {
+//                            Text(dietType)
+//                            Spacer()
+//                            Button {
+//                                dietType.removeAll { $0 == ingredient }
+//                            } label: {
+//                                Image(systemName: "minus.circle.fill")
+//                                    .foregroundColor(.red)
+//                            }
+//                        }
+//                    }
+//                    
+//                    HStack {
+//                        TextField("Add ingredient", text: $newIngredient)
+//                        Button {
+//                            if !newIngredient.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+//                               !dietType.contains(newIngredient) {
+//                                dietType.append(newIngredient)
+//                                newIngredient = ""
+//                            }
+//                        } label: {
+//                            Image(systemName: "plus.circle.fill")
+//                                .foregroundColor(.green)
+//                        }
+//                        .disabled(newIngredient.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+//                    }
+//                }
                 
                 // Save Button
                 Section {
@@ -215,7 +215,7 @@ struct MenuFormView: View {
             existingMenu.desc = description
             existingMenu.menuType = menuType
             existingMenu.type = types
-            existingMenu.ingredients = ingredients
+            existingMenu.dietType = dietType
             
             if let selectedImage = selectedImage {
                 existingMenu.image = selectedImage.jpegData(compressionQuality: 0.8)
@@ -228,7 +228,7 @@ struct MenuFormView: View {
                 desc: description,
                 image: selectedImage?.jpegData(compressionQuality: 0.8),
                 type: types,
-                ingredients: ingredients,
+                dietType: dietType,
                 menuType: menuType,
                 stalls: stall
             )
